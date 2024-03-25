@@ -2,22 +2,25 @@ name: 'Google Cloud Deploy Actions Collection'
 description: 'Run Cloud Deploy actions for Google Project'
 author: 'drew.mercer'
 inputs: 
-  DEPLOY_TYPE:
+  deploy_type:
     description: 'Cloud Run or GKE'
     required: true
-  PROJECT_ID: 
+  project_id: 
     description: 'Project ID'
     required: true
-  ENVIRONMENT: 
+  environment: 
     description: 'Environment'
     required: false
-  SERVICE_NAME: 
+  region: 
+    description: 'Region'
+    required: true
+  service_name: 
     description: 'Service Name'
     required: true
-  IMAGE: 
+  image: 
     description: 'Docker Image URI'
     required: true
-  CLOUD_RUN_SA: 
+  cloud_run_sa: 
     description: 'Cloud Run Service Account'
     required: true
 
@@ -25,21 +28,21 @@ runs:
   using: "composite"
   steps:
   - id: create_service
-    if: ${{ inputs.DEPLOY_TYPE == 'cloud-run' }}
+    if: ${{ inputs.deploy_type == 'cloudrun' }}
     run: |
-      export SERVICE_NAME="${{ inputs.SERVICE_NAME }}"
-      export PROJECT_ID="${{ inputs.PROJECT_ID }}"
-      export IMAGE="${{ inputs.IMAGE }}"
-      export CLOUD_RUN_SA="${{ vars.CLOUD_RUN_SA }}"
-      export ENVIRONMENT="${{ inputs.environment }}"
+      export service_name="${{ inputs.service_name }}"
+      export project_id="${{ inputs.project_id }}"
+      export image="${{ inputs.image }}"
+      export cloud_run_sa="${{ vars.cloud_run_sa }}"
+      export environment="${{ inputs.environment }}"
       envsubst < ./service/container.yaml > container-${{ inputs.environment }}.yaml
       cat container-${{ inputs.environment }}.yaml
     shell: bash
 
   - id: deploy_service
-    if: ${{ inputs.DEPLOY_TYPE == 'cloud-run' }}
+    if: ${{ inputs.deploy_type == 'cloudrun' }}
     uses: google-github-actions/deploy-cloudrun@v2
     with:
-      service: ${{ env.SERVICE_NAME }}
-      region: ${{ vars.REGION }}
+      service: ${{ env.service_name }}
+      region: ${{ vars.region }}
       metadata: container-${{ inputs.environment }}.yaml
