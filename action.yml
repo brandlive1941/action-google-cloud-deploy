@@ -34,11 +34,11 @@ runs:
   - id: create_service
     if: ${{ inputs.deploy_type == 'cloudrun' }}
     run: |
-      export service_name="${{ inputs.service_name }}"
-      export project_id="${{ inputs.project_id }}"
-      export image="${{ inputs.image }}"
-      export cloud_run_sa="${{ inputs.cloud_run_sa }}"
-      export environment="${{ inputs.environment }}"
+      export SERVICE_NAME="${{ inputs.service_name }}"
+      export PROJECT_ID="${{ inputs.project_id }}"
+      export IMAGE="${{ inputs.image }}"
+      export CLOUD_RUN_SA="${{ inputs.cloud_run_sa }}"
+      export ENVIRONMENT="${{ inputs.environment }}"
       envsubst < ${{ inputs.service_name }}/${{ inputs.directory}}/container.yaml > container-${{ inputs.environment }}.yaml
       cat container-${{ inputs.environment }}.yaml
     shell: bash
