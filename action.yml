@@ -5,6 +5,10 @@ inputs:
   deploy_type:
     description: 'Cloud Run or GKE'
     required: true
+  directory:
+    description: 'Directory to run Cloud Deploy in'
+    required: false
+    default: './service'
   project_id: 
     description: 'Project ID'
     required: true
@@ -33,9 +37,9 @@ runs:
       export service_name="${{ inputs.service_name }}"
       export project_id="${{ inputs.project_id }}"
       export image="${{ inputs.image }}"
-      export cloud_run_sa="${{ vars.cloud_run_sa }}"
+      export cloud_run_sa="${{ inputs.cloud_run_sa }}"
       export environment="${{ inputs.environment }}"
-      envsubst < ./service/container.yaml > container-${{ inputs.environment }}.yaml
+      envsubst < ${{ inputs.directory}}/container.yaml > container-${{ inputs.environment }}.yaml
       cat container-${{ inputs.environment }}.yaml
     shell: bash
 
@@ -44,5 +48,5 @@ runs:
     uses: google-github-actions/deploy-cloudrun@v2
     with:
       service: ${{ env.service_name }}
-      region: ${{ vars.region }}
+      region: ${{ inputs.region }}
       metadata: container-${{ inputs.environment }}.yaml
