@@ -1,0 +1,45 @@
+name: 'Google Cloud Deploy Actions Collection'
+description: 'Run Cloud Deploy actions for Google Project'
+author: 'drew.mercer'
+inputs: 
+  DEPLOY_TYPE:
+    description: 'Cloud Run or GKE'
+    required: true
+  PROJECT_ID: 
+    description: 'Project ID'
+    required: true
+  ENVIRONMENT: 
+    description: 'Environment'
+    required: false
+  SERVICE_NAME: 
+    description: 'Service Name'
+    required: true
+  IMAGE: 
+    description: 'Docker Image URI'
+    required: true
+  CLOUD_RUN_SA: 
+    description: 'Cloud Run Service Account'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - id: create_service
+    if: ${{ inputs.DEPLOY_TYPE == 'cloud-run' }}
+    run: |
+      export SERVICE_NAME="${{ inputs.SERVICE_NAME }}"
+      export PROJECT_ID="${{ inputs.PROJECT_ID }}"
+      export IMAGE="${{ inputs.IMAGE }}"
+      export CLOUD_RUN_SA="${{ vars.CLOUD_RUN_SA }}"
+      export ENVIRONMENT="${{ inputs.environment }}"
+      envsubst < ./service/container.yaml > container-${{ inputs.environment }}.yaml
+      cat container-${{ inputs.environment }}.yaml
+    shell: bash
+
+  - id: deploy_service
+    if: ${{ inputs.DEPLOY_TYPE == 'cloud-run' }}
+    uses: google-github-actions/deploy-cloudrun@v2
+    with:
+      service: ${{ env.SERVICE_NAME }}
+      region: ${{ vars.REGION }}
+      metadata: container-${{ inputs.environment }}.yaml
