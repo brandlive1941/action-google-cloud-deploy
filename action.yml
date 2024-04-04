@@ -39,7 +39,7 @@ runs:
       export IMAGE="${{ inputs.image }}"
       export CLOUD_RUN_SA="${{ inputs.cloud_run_sa }}"
       export ENVIRONMENT="${{ inputs.environment }}"
-      envsubst < ${{ inputs.service_name }}/${{ inputs.directory}}/container.yaml > container-${{ inputs.environment }}.yaml
+      envsubst < ${{ inputs.directory}}/container.yaml > container-${{ inputs.environment }}.yaml
       cat container-${{ inputs.environment }}.yaml
     shell: bash
 
