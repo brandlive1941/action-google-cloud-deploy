@@ -27,6 +27,9 @@ inputs:
   cloud_run_sa: 
     description: 'Cloud Run Service Account'
     required: true
+  vpc_access_connector: 
+    description: 'VPC Access Connector'
+    required: true
 
 runs:
   using: "composite"
@@ -39,6 +42,7 @@ runs:
       export IMAGE="${{ inputs.image }}"
       export CLOUD_RUN_SA="${{ inputs.cloud_run_sa }}"
       export ENVIRONMENT="${{ inputs.environment }}"
+      export VPC_ACCESS_CONNECTOR="${{ inputs.vpc_access_connector }}"
       envsubst < ${{ inputs.directory}}/container.yaml > container-${{ inputs.environment }}.yaml
       cat container-${{ inputs.environment }}.yaml
     shell: bash
