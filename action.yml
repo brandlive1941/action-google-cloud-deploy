@@ -9,6 +9,10 @@ inputs:
     description: 'Directory to run Cloud Deploy in'
     required: false
     default: './service'
+  service_definition:
+    description: 'Service Definition'
+    required: false
+    default: '${{ inputs.service_definition }}'
   project_id: 
     description: 'Project ID'
     required: true
@@ -43,14 +47,11 @@ runs:
       export CLOUD_RUN_SA="${{ inputs.cloud_run_sa }}"
       export ENVIRONMENT="${{ inputs.environment }}"
       export VPC_ACCESS_CONNECTOR="${{ inputs.vpc_access_connector }}"
-      envsubst < ${{ inputs.directory}}/container.yaml > container-${{ inputs.environment }}.yaml
+      envsubst < ${{ inputs.directory}}/${{ inputs.service_definition }} > ${{ inputs.service_name }}-${{ inputs.environment }}.yaml
       cat container-${{ inputs.environment }}.yaml
     shell: bash
 
   - id: deploy_service
     if: ${{ inputs.deploy_type == 'cloudrun' }}
-    uses: google-github-actions/deploy-cloudrun@v2
-    with:
-      service: ${{ env.service_name }}
-      region: ${{ inputs.region }}
-      metadata: container-${{ inputs.environment }}.yaml
+    run: gcloud run services replace ${{ inputs.service_name }}-${{ inputs.environment }}.yaml
+    shell: bash
