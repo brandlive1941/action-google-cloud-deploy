@@ -57,4 +57,4 @@ runs:
     with:
       service: ${{ env.service_name }}
       region: ${{ inputs.region }}
-      metadata: ${{ inputs.service_name }}-${{ inputs.environment }}.yaml.yaml
+      metadata: ${{ inputs.service_name }}-${{ inputs.environment }}.yaml
