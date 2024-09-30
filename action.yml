@@ -12,7 +12,7 @@ inputs:
   service_definition:
     description: 'Service Definition'
     required: false
-    default: '${{ inputs.service_definition }}'
+    default: './service/container.yaml'
   project_id: 
     description: 'Project ID'
     required: true
