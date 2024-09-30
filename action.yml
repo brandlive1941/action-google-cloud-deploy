@@ -48,7 +48,7 @@ runs:
       export ENVIRONMENT="${{ inputs.environment }}"
       export VPC_ACCESS_CONNECTOR="${{ inputs.vpc_access_connector }}"
       envsubst < ${{ inputs.directory}}/${{ inputs.service_definition }} > ${{ inputs.service_name }}-${{ inputs.environment }}.yaml
-      cat container-${{ inputs.environment }}.yaml
+      cat ${{ inputs.service_name }}-${{ inputs.environment }}.yaml
     shell: bash
 
   - id: deploy_service
