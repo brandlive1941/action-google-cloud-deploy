@@ -16,12 +16,12 @@ inputs:
   project_id: 
     description: 'Project ID'
     required: true
-  environment: 
-    description: 'Environment'
-    required: false
   region: 
     description: 'Region'
     required: true
+  environment: 
+    description: 'Environment'
+    required: false
   service_name: 
     description: 'Service Name'
     required: true
@@ -50,8 +50,11 @@ runs:
       envsubst < ${{ inputs.directory}}/${{ inputs.service_definition }} > ${{ inputs.service_name }}-${{ inputs.environment }}.yaml
       cat ${{ inputs.service_name }}-${{ inputs.environment }}.yaml
     shell: bash
-
+  
   - id: deploy_service
     if: ${{ inputs.deploy_type == 'cloudrun' }}
-    run: gcloud run services replace ${{ inputs.service_name }}-${{ inputs.environment }}.yaml
-    shell: bash
+    uses: google-github-actions/deploy-cloudrun@v2
+    with:
+      service: ${{ env.service_name }}
+      region: ${{ inputs.region }}
+      metadata: ${{ inputs.service_name }}-${{ inputs.environment }}.yaml.yaml
