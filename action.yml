@@ -8,11 +8,11 @@ inputs:
   directory:
     description: 'Directory to run Cloud Deploy in'
     required: false
-    default: './service'
+    default: './.gcp'
   service_definition:
     description: 'Service Definition'
     required: false
-    default: 'container.yaml'
+    default: 'service.yaml'
   project_id: 
     description: 'Project ID'
     required: true
