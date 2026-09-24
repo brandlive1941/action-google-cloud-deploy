@@ -47,8 +47,30 @@ runs:
       export CLOUD_RUN_SA="${{ inputs.cloud_run_sa }}"
       export ENVIRONMENT="${{ inputs.environment }}"
       export VPC_ACCESS_CONNECTOR="${{ inputs.vpc_access_connector }}"
-      envsubst < ${{ inputs.directory}}/${{ inputs.service_definition }} > ${{ inputs.service_name }}-${{ inputs.environment }}.yaml
-      cat ${{ inputs.service_name }}-${{ inputs.environment }}.yaml
+      RENDERED="${{ inputs.service_name }}-${{ inputs.environment }}.yaml"
+      envsubst < ${{ inputs.directory}}/${{ inputs.service_definition }} > "$RENDERED"
+
+      # `services replace` is declarative: an unchanged spec creates no revision and
+      # still exits 0, so redeploying the same image silently does nothing. Stamping
+      # the run id into the revision template guarantees a rollout. BDEV-5770
+      DEPLOY_ID="${GITHUB_RUN_ID:-$(date -u +%s)}-${GITHUB_RUN_ATTEMPT:-1}"
+      awk -v id="$DEPLOY_ID" '
+        BEGIN { in_template = 0; stamped = 0 }
+        { print }
+        /^  template:[[:space:]]*$/ { in_template = 1 }
+        in_template && !stamped && /^      annotations:[[:space:]]*$/ {
+          print "        brandlive.com/deploy-id: \"" id "\""
+          stamped = 1
+        }
+      ' "$RENDERED" > "$RENDERED.stamped"
+      mv "$RENDERED.stamped" "$RENDERED"
+
+      if ! grep -q 'brandlive.com/deploy-id' "$RENDERED"; then
+        echo "::error::could not stamp deploy-id: no spec.template.metadata.annotations block in $RENDERED"
+        exit 1
+      fi
+
+      cat "$RENDERED"
     shell: bash
   
   - id: deploy_service
